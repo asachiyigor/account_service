@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 @Table(name="account")
 public class Account {
     @Id
-    @Column(name="account_id", length = 20, nullable = false, unique = true)
+    @Column(name="account_id", length = 20)
     @Size(min=12, max=20, message = "Account number must be between 12 and 20 characters")
     private String accountId;
 
