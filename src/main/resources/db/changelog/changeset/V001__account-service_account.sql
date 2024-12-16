@@ -1,4 +1,4 @@
-CREATE TABLE account
+CREATE TABLE IF NOT EXISTS account
 (
     account_id  VARCHAR(20) PRIMARY KEY,
     owner_id    BIGINT      NOT NULL,
