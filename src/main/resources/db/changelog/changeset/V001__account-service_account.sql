@@ -10,7 +10,6 @@ CREATE TABLE account
     updated_at  timestamptz DEFAULT current_timestamp,
     closed_at   timestamptz DEFAULT current_timestamp,
     version     INTEGER     NOT NULL,
-    balance     DECIMAL     NOT NULL,
     is_verified BOOLEAN     NOT NULL,
     notes       VARCHAR(4096),
     CONSTRAINT account_number_length CHECK (CHAR_LENGTH(account_id) BETWEEN 12 AND 20)
