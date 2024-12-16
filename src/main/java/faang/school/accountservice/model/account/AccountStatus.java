@@ -1,6 +1,6 @@
 package faang.school.accountservice.model.account;
 
-public enum PaymentStatus {
+public enum AccountStatus {
     ACTIVE,
     FROZEN,
     CLOSED,

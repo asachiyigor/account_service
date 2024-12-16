@@ -1,14 +1,17 @@
 package faang.school.accountservice.model.account;
 
+import faang.school.accountservice.model.owner.Owner;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,28 +20,26 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="account")
+@Table(name = "account")
 public class Account {
     @Id
-    @Column(name="account_id", length = 20)
-    @Size(min=12, max=20, message = "Account number must be between 12 and 20 characters")
-    private String accountId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Positive(message = "Owner id must be positive")
-    @Column(name="owner_id", nullable = false)
-    @NotNull(message = "Owner id is required")
-    private long ownerId;
+    @Column(name = "account_number", length = 20, unique = true, nullable = false)
+    @Size(min = 12, max = 20, message = "Account number must be between 12 and 20 characters")
+    private String accountNumber;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "owner_type", nullable = false, length = 32)
-    private OwnerType ownerType;
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private Owner owner;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 64)
@@ -50,23 +51,23 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 32)
-    private PaymentStatus status;
+    private AccountStatus status;
 
     @CreationTimestamp
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @UpdateTimestamp
     @Column(name = "closed_at")
-    private LocalDateTime closedAt;
+    private Instant closedAt;
 
-    @Column(name="version", nullable = false)
+    @Column(name = "version", nullable = false)
     @Version
-    private int version;
+    private long version;
 
     @Column(name = "is_verified", nullable = false)
     private boolean isVerified;
