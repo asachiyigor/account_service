@@ -9,6 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,15 +30,14 @@ import java.time.LocalDateTime;
 @Table(name="account")
 public class Account {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
-    private Long Id;
+    @Column(name="account_id", length = 20, nullable = false, unique = true)
+    @Size(min=12, max=20, message = "Account number must be between 12 and 20 characters")
+    private String accountId;
 
-    @Column(name="account_number", length = 20, nullable = false, unique = true)
-    private String accountNumber;
-
+    @Positive(message = "Owner id must be positive")
     @Column(name="owner_id", nullable = false)
-    private Long ownerId;
+    @NotNull(message = "Owner id is required")
+    private long ownerId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "owner_type", nullable = false, length = 32)
@@ -69,12 +71,10 @@ public class Account {
     @Version
     private int version;
 
-    @Column(name = "balance", nullable = false)
-    private BigDecimal balance;
-
     @Column(name = "is_verified", nullable = false)
     private boolean isVerified;
 
+    @Size(max = 4096, message = "Notes must be less than 4096 characters")
     @Column(name = "notes", length = 4096)
     private String notes;
 }
