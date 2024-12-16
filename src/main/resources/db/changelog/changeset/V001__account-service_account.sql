@@ -12,7 +12,9 @@ CREATE TABLE account
     version     INTEGER     NOT NULL,
     is_verified BOOLEAN     NOT NULL,
     notes       VARCHAR(4096),
-    CONSTRAINT account_number_length CHECK (CHAR_LENGTH(account_id) BETWEEN 12 AND 20)
+
+    CONSTRAINT account_number_length CHECK (CHAR_LENGTH(account_id) BETWEEN 12 AND 20),
+    CONSTRAINT account_number_digits CHECK (account_id ~ '^[0-9]+$')
 );
 
 CREATE INDEX idx_account_owner_id ON account (owner_id);
