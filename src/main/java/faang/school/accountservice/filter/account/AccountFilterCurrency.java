@@ -11,11 +11,11 @@ import java.util.stream.Stream;
 public class AccountFilterCurrency implements Filter<Account, AccountDtoFilter> {
     @Override
     public boolean isApplicable(AccountDtoFilter filter) {
-        return filter.getCurrency() != null;
+        return filter.getCurrencies() != null && !filter.getCurrencies().isEmpty();
     }
 
     @Override
     public Stream<Account> apply(Stream<Account> stream, AccountDtoFilter filter) {
-        return stream.filter(account -> account.getCurrency().equals(filter.getCurrency()));
+        return stream.filter(account -> filter.getCurrencies().contains(account.getCurrency()));
     }
 }

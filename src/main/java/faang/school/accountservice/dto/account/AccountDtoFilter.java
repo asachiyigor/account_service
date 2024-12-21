@@ -21,7 +21,7 @@ public class AccountDtoFilter {
     private Long ownerId;
     private OwnerType ownerType;
     private AccountType accountType;
-    private Currency currency;
+    private List<Currency> currencies;
     private List<AccountStatus> statuses;
     private LocalDateTime createdAtStart;
     private LocalDateTime createdAtEnd;
