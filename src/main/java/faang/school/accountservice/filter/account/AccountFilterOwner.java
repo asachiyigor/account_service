@@ -11,11 +11,11 @@ import java.util.stream.Stream;
 public class AccountFilterOwner implements Filter<Account, AccountDtoFilter> {
     @Override
     public boolean isApplicable(AccountDtoFilter filter) {
-        return filter.getOwnerId() != null;
+        return filter.getOwnerIds() != null && !filter.getOwnerIds().isEmpty();
     }
 
     @Override
     public Stream<Account> apply(Stream<Account> stream, AccountDtoFilter filter) {
-        return stream.filter(account -> account.getOwner().getId().equals(filter.getOwnerId()));
+        return stream.filter(account -> filter.getOwnerIds().contains(account.getOwner().getOwnerId()));
     }
 }

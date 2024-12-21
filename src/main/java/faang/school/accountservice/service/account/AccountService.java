@@ -81,8 +81,7 @@ public class AccountService {
     }
 
     public List<AccountDtoResponse> getAccounts(@NotNull AccountDtoFilter filterDto) {
-        List<Account> accounts = accountRepository.findAll();
-        Stream<Account> accountStream = accounts.stream();
+        Stream<Account> accountStream = accountRepository.findAll().stream();
         return filters.stream()
                 .filter(filter -> filter.isApplicable(filterDto))
                 .reduce(accountStream, (stream, filter) -> filter.apply(stream, filterDto), (s1, s2) -> s1)

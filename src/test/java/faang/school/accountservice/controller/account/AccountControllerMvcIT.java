@@ -29,6 +29,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -201,9 +202,9 @@ class AccountControllerMvcIT {
     @Test
     void testGetAccounts_withOwnerId_Positive() throws Exception {
         AccountDtoFilter dtoFilter = AccountDtoFilter.builder()
-                .ownerId(1L)
+                .ownerIds(List.of(1001L, 1002L))
                 .build();
-        long accountsCount = accountJpaRepository.findAccountsByOwnerId(dtoFilter.getOwnerId()).size();
+        long accountsCount = accountJpaRepository.findAccountsByOwnerIds(dtoFilter.getOwnerIds()).size();
 
         MvcResult mvcResult = mockMvc.perform(
                         MockMvcRequestBuilders.get(URL_PREFIX)

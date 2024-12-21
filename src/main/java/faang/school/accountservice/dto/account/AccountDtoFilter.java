@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 public class AccountDtoFilter {
     private String accountNumber;
-    private Long ownerId;
+    private List<Long> ownerIds;
     private OwnerType ownerType;
     private List<AccountType> accountTypes;
     private List<Currency> currencies;
