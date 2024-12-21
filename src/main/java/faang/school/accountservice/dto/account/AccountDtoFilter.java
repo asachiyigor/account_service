@@ -20,7 +20,7 @@ public class AccountDtoFilter {
     private String accountNumber;
     private Long ownerId;
     private OwnerType ownerType;
-    private AccountType accountType;
+    private List<AccountType> accountTypes;
     private List<Currency> currencies;
     private List<AccountStatus> statuses;
     private LocalDateTime createdAtStart;
