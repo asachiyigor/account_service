@@ -11,11 +11,11 @@ import java.util.stream.Stream;
 public class AccountFilterStatus implements Filter<Account, AccountDtoFilter> {
     @Override
     public boolean isApplicable(AccountDtoFilter filter) {
-        return filter.getStatus() != null;
+        return filter.getStatuses() != null && !filter.getStatuses().isEmpty();
     }
 
     @Override
     public Stream<Account> apply(Stream<Account> stream, AccountDtoFilter filter) {
-        return stream.filter(account -> account.getStatus().equals(filter.getStatus()));
+        return stream.filter(account -> filter.getStatuses().contains(account.getStatus()));
     }
 }

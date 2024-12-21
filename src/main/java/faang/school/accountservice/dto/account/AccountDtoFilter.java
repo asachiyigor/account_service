@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -21,7 +22,7 @@ public class AccountDtoFilter {
     private OwnerType ownerType;
     private AccountType accountType;
     private Currency currency;
-    private AccountStatus status;
+    private List<AccountStatus> statuses;
     private LocalDateTime createdAtStart;
     private LocalDateTime createdAtEnd;
     private LocalDateTime closedAtStart;
