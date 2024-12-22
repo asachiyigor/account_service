@@ -7,17 +7,16 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AccountFilterOwnerType implements FilterSpecification<Account, AccountDtoFilter> {
-    private final static String FIELD_NAME = "owner";
-    private final static String FIELD_NAME_OWNER_TYPE = "type";
+public class AccountFilterClosedAtLt implements FilterSpecification<Account, AccountDtoFilter> {
+    private final static String FIELD_NAME = "closedAt";
 
     @Override
     public boolean isApplicable(AccountDtoFilter filter) {
-        return filter.getOwnerType() != null;
+        return filter.getClosedAtLt() != null;
     }
 
     @Override
     public Specification<Account> apply(AccountDtoFilter filter) {
-        return (root, query, cb) -> cb.equal(root.get(FIELD_NAME).get(FIELD_NAME_OWNER_TYPE), filter.getOwnerType());
+        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(FIELD_NAME), filter.getClosedAtLt());
     }
 }

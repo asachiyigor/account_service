@@ -6,6 +6,7 @@ import faang.school.accountservice.dto.account.AccountDtoOpen;
 import faang.school.accountservice.dto.account.AccountDtoResponse;
 import faang.school.accountservice.dto.account.AccountDtoVerify;
 import faang.school.accountservice.enums.AccountStatus;
+import faang.school.accountservice.filter.FilterSpecification;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.owner.Owner;
@@ -41,9 +42,10 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final OwnerRepository ownerRepository;
     private final AccountMapper accountMapper;
+    private final AccountJpaRepository accountJpaRepository;
+    private final List<FilterSpecification<Account, AccountDtoFilter>> filters;
 
     private final Set<String> accountNumbers = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    private final AccountJpaRepository accountJpaRepository;
 
     @Transactional
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
@@ -81,9 +83,14 @@ public class AccountService {
     }
 
     public List<AccountDtoResponse> getAccounts(@NotNull AccountDtoFilter filterDto) {
-        Specification<Account> specification = AccountSpecification.byFilter(filterDto);
-        List<Account> accounts = accountJpaRepository.findAll(specification);
-        return accounts.stream().map(accountMapper::toDto).toList();
+        Specification<Account> specification = filters.stream()
+                .filter(filter -> filter.isApplicable(filterDto))
+                .map(filter -> filter.apply(filterDto))
+                .reduce(Specification.where(null), Specification::and);
+
+        return accountJpaRepository.findAll(specification).stream()
+                .map(accountMapper::toDto)
+                .toList();
     }
 
     @Transactional
