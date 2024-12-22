@@ -6,18 +6,19 @@ import faang.school.accountservice.dto.account.AccountDtoOpen;
 import faang.school.accountservice.dto.account.AccountDtoResponse;
 import faang.school.accountservice.dto.account.AccountDtoVerify;
 import faang.school.accountservice.enums.AccountStatus;
-import faang.school.accountservice.filter.Filter;
 import faang.school.accountservice.mapper.AccountMapper;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.owner.Owner;
 import faang.school.accountservice.repository.AccountRepository;
 import faang.school.accountservice.repository.OwnerRepository;
+import faang.school.accountservice.repository.jpa.AccountJpaRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -41,9 +41,9 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final OwnerRepository ownerRepository;
     private final AccountMapper accountMapper;
-    private final List<Filter<Account, AccountDtoFilter>> filters;
 
     private final Set<String> accountNumbers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final AccountJpaRepository accountJpaRepository;
 
     @Transactional
     @Retryable(retryFor = OptimisticLockingFailureException.class, backoff = @Backoff(delay = 3000L))
@@ -81,12 +81,9 @@ public class AccountService {
     }
 
     public List<AccountDtoResponse> getAccounts(@NotNull AccountDtoFilter filterDto) {
-        Stream<Account> accountStream = accountRepository.findAll().stream();
-        return filters.stream()
-                .filter(filter -> filter.isApplicable(filterDto))
-                .reduce(accountStream, (stream, filter) -> filter.apply(stream, filterDto), (s1, s2) -> s1)
-                .map(accountMapper::toDto)
-                .toList();
+        Specification<Account> specification = AccountSpecification.byFilter(filterDto);
+        List<Account> accounts = accountJpaRepository.findAll(specification);
+        return accounts.stream().map(accountMapper::toDto).toList();
     }
 
     @Transactional

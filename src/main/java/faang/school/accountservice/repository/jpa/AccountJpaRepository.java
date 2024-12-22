@@ -4,6 +4,7 @@ import faang.school.accountservice.enums.AccountStatus;
 import faang.school.accountservice.model.account.Account;
 import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AccountJpaRepository extends JpaRepository<Account, Long> {
+public interface AccountJpaRepository extends JpaRepository<Account, Long>, JpaSpecificationExecutor<Account> {
     Optional<Account> findByIdAndStatus(long id, AccountStatus accountStatus);
 
     Optional<Account> findByAccountNumber(String accountNumber);
