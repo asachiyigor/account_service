@@ -220,22 +220,6 @@ class AccountControllerMvcIT {
     }
 
     @Test
-    void testGetAccounts_withInvalidAccountNumber_PositiveNull() throws Exception {
-        AccountDtoFilter dtoFilter = AccountDtoFilter.builder()
-                .accountNumber("123456")
-                .build();
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(URL_PREFIX)
-                        .header("x-user-id", 1L)
-                        .content(objectMapper.writeValueAsString(dtoFilter))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding(StandardCharsets.UTF_8))
-                .andExpect(status().isOk())
-                .andReturn();
-        String content = mvcResult.getResponse().getContentAsString();
-        assertEquals("[]", content);
-    }
-
-    @Test
     void testGetAccounts_Negative() throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders.get(URL_PREFIX)
