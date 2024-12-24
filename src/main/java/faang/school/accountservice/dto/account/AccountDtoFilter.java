@@ -10,22 +10,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountDtoFilter {
-    private String accountNumber;
-    private Long ownerId;
+    private List<Long> ownerIds;
     private OwnerType ownerType;
-    private AccountType accountType;
-    private Currency currency;
-    private AccountStatus status;
-    private LocalDateTime createdAtStart;
-    private LocalDateTime createdAtEnd;
-    private LocalDateTime closedAtStart;
-    private LocalDateTime closedAtEnd;
+    private List<AccountType> accountTypes;
+    private List<Currency> currencies;
+    private List<AccountStatus> statuses;
+    private LocalDateTime createdAtGt;
+    private LocalDateTime createdAtLt;
+    private LocalDateTime closedAtGt;
+    private LocalDateTime closedAtLt;
     private Boolean isVerified;
     private String notes;
 }

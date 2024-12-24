@@ -1,21 +1,22 @@
 package faang.school.accountservice.filter.account;
 
 import faang.school.accountservice.dto.account.AccountDtoFilter;
-import faang.school.accountservice.filter.Filter;
+import faang.school.accountservice.filter.FilterSpecification;
 import faang.school.accountservice.model.account.Account;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Stream;
-
 @Component
-public class AccountFilterVerify implements Filter<Account, AccountDtoFilter> {
+public class AccountFilterVerify implements FilterSpecification<Account, AccountDtoFilter> {
+    private final static String FIELD_NAME = "isVerified";
+
     @Override
     public boolean isApplicable(AccountDtoFilter filter) {
         return filter.getIsVerified() != null;
     }
 
     @Override
-    public Stream<Account> apply(Stream<Account> stream, AccountDtoFilter filter) {
-        return stream.filter(account -> account.isVerified() == filter.getIsVerified());
+    public Specification<Account> apply(AccountDtoFilter filter) {
+        return (root, query, cb) -> cb.equal(root.get(FIELD_NAME), filter.getIsVerified());
     }
 }

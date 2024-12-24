@@ -1,21 +1,23 @@
 package faang.school.accountservice.filter.account;
 
 import faang.school.accountservice.dto.account.AccountDtoFilter;
-import faang.school.accountservice.filter.Filter;
+import faang.school.accountservice.filter.FilterSpecification;
 import faang.school.accountservice.model.account.Account;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Stream;
-
 @Component
-public class AccountFilterOwner implements Filter<Account, AccountDtoFilter> {
+public class AccountFilterOwner implements FilterSpecification<Account, AccountDtoFilter> {
+    private final static String FIELD_NAME = "owner";
+    private final static String FIELD_NAME_OWNER_ID = "ownerId";
+
     @Override
     public boolean isApplicable(AccountDtoFilter filter) {
-        return filter.getOwnerId() != null;
+        return filter.getOwnerIds() != null && !filter.getOwnerIds().isEmpty();
     }
 
     @Override
-    public Stream<Account> apply(Stream<Account> stream, AccountDtoFilter filter) {
-        return stream.filter(account -> account.getOwner().getId().equals(filter.getOwnerId()));
+    public Specification<Account> apply(AccountDtoFilter filter) {
+        return (root, query, cb) -> root.get(FIELD_NAME).get(FIELD_NAME_OWNER_ID).in(filter.getOwnerIds());
     }
 }

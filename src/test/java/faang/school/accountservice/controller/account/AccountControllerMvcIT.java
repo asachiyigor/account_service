@@ -29,6 +29,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -201,9 +202,9 @@ class AccountControllerMvcIT {
     @Test
     void testGetAccounts_withOwnerId_Positive() throws Exception {
         AccountDtoFilter dtoFilter = AccountDtoFilter.builder()
-                .ownerId(1L)
+                .ownerIds(List.of(1001L, 1002L))
                 .build();
-        long accountsCount = accountJpaRepository.findAccountsByOwnerId(dtoFilter.getOwnerId()).size();
+        long accountsCount = accountJpaRepository.findAccountsByOwnerIds(dtoFilter.getOwnerIds()).size();
 
         MvcResult mvcResult = mockMvc.perform(
                         MockMvcRequestBuilders.get(URL_PREFIX)
@@ -216,22 +217,6 @@ class AccountControllerMvcIT {
         String content = mvcResult.getResponse().getContentAsString();
         AccountDtoResponse[] response = objectMapper.readValue(content, AccountDtoResponse[].class);
         assertEquals(response.length, accountsCount);
-    }
-
-    @Test
-    void testGetAccounts_withInvalidAccountNumber_PositiveNull() throws Exception {
-        AccountDtoFilter dtoFilter = AccountDtoFilter.builder()
-                .accountNumber("123456")
-                .build();
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(URL_PREFIX)
-                        .header("x-user-id", 1L)
-                        .content(objectMapper.writeValueAsString(dtoFilter))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding(StandardCharsets.UTF_8))
-                .andExpect(status().isOk())
-                .andReturn();
-        String content = mvcResult.getResponse().getContentAsString();
-        assertEquals("[]", content);
     }
 
     @Test
