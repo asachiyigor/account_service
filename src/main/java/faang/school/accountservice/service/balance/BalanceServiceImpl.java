@@ -50,6 +50,7 @@ public class BalanceServiceImpl implements BalanceService {
     Balance balance = switch (paymentDto.paymentStep()) {
       case AUTHORIZATION -> getAuthorizationBalance(id, value);
       case CLEARING -> getClearingBalance(id, value);
+      case UP_BALANCE -> getUpBalance(id, value);
     };
     return balanceMapper.toDto(balanceRepository.save(balance));
   }
@@ -88,6 +89,12 @@ public class BalanceServiceImpl implements BalanceService {
       throw new IllegalArgumentException("Not enough money to clear payment");
     }
     balance.clearPayment(value);
+    return balance;
+  }
+
+  private Balance getUpBalance(Long id, BigDecimal value) {
+    Balance balance = findBalanceById(id);
+    balance.upBalance(value);
     return balance;
   }
 

@@ -61,4 +61,10 @@ public class Balance {
     actualValue = actualValue.subtract(value);
     version++;
   }
+
+  public void upBalance(BigDecimal value) {
+    actualValue = actualValue.add(value);
+    authorizedValue = authorizedValue.add(value);
+    version++;
+  }
 }
