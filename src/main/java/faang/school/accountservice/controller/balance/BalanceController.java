@@ -4,6 +4,7 @@ import faang.school.accountservice.dto.balance.BalanceCreateDto;
 import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.dto.balance.PaymentDto;
 import faang.school.accountservice.service.balance.BalanceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,19 +24,19 @@ public class BalanceController {
 
   @PostMapping("/add")
   public BalanceDto addBalance(@RequestHeader("x-user-id") Long userId,
-      @RequestBody BalanceCreateDto dto) {
+      @Valid @RequestBody BalanceCreateDto dto) {
     return balanceService.create(userId, dto);
   }
 
   @PutMapping("/update")
   public BalanceDto updateBalance(@RequestHeader("x-user-id") Long userId,
-      @RequestBody PaymentDto dto) {
+      @Valid @RequestBody PaymentDto dto) {
     return balanceService.update(userId, dto);
   }
 
   @GetMapping("/{id}")
   public BalanceDto getBalanceById(@RequestHeader("x-user-id") Long userId,
-      @PathVariable("id") Long id) {
+      @Valid @PathVariable("id") Long id) {
     return balanceService.getBalanceById(userId, id);
   }
 
