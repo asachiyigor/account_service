@@ -12,7 +12,6 @@ public record PaymentDto(
     PaymentStep paymentStep,
     @NotNull
     BigDecimal value
- ) {
-
+) {
 
 }

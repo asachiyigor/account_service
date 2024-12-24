@@ -13,9 +13,12 @@ public interface BalanceMapper {
   @Mapping(target = "accountId", source = "account.id")
   BalanceDto toDto(Balance balance);
 
+  @Mapping(source = "createdAt", target = "createdAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+  @Mapping(target = "account", ignore = true)
   Balance toEntity(BalanceDto dto);
 
   @Mapping(target = "account", ignore = true)
   Balance toEntity(BalanceCreateDto dto);
+
 
 }

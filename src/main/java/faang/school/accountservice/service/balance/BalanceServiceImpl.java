@@ -1,5 +1,6 @@
 package faang.school.accountservice.service.balance;
 
+import faang.school.accountservice.client.UserServiceClient;
 import faang.school.accountservice.dto.balance.BalanceCreateDto;
 import faang.school.accountservice.dto.balance.BalanceDto;
 import faang.school.accountservice.dto.balance.PaymentDto;
@@ -25,6 +26,7 @@ public class BalanceServiceImpl implements BalanceService {
   private final BalanceRepository balanceRepository;
   private final BalanceMapper balanceMapper;
   private final AccountService accountService;
+  private final UserServiceClient userServiceClient;
 
   @Transactional
   @Override
@@ -34,7 +36,7 @@ public class BalanceServiceImpl implements BalanceService {
     accountService.getAccount(accountId);
     Balance balance = balanceRepository.create(accountId,
         balanceCreateDto.authorizedValue());
-    return balanceMapper.toDto(balanceRepository.save(balance));
+    return balanceMapper.toDto(balance);
   }
 
   @Transactional
@@ -44,13 +46,11 @@ public class BalanceServiceImpl implements BalanceService {
     validateUser(userId);
     Long id = paymentDto.balanceId();
     BigDecimal value = paymentDto.value();
-    Balance balance = findBalanceById(id);
 
-    switch (paymentDto.paymentStep()) {
-      case AUTHORIZATION -> balance.authorizePayment(value);
-      case CLEARING -> balance.clearPayment(value);
-      default -> throw new IllegalArgumentException("Wrong payment step");
-    }
+    Balance balance = switch (paymentDto.paymentStep()) {
+      case AUTHORIZATION -> getAuthorizationBalance(id, value);
+      case CLEARING -> getClearingBalance(id, value);
+    };
     return balanceMapper.toDto(balanceRepository.save(balance));
   }
 
@@ -67,7 +67,28 @@ public class BalanceServiceImpl implements BalanceService {
   }
 
   private void validateUser(Long userId) {
+    if (userServiceClient.getUser(userId) == null) {
+      throw new EntityNotFoundException(String.format("User with ID %d not found", userId));
+    }
     log.info("user with id = {} validated", userId);
+  }
+
+  private Balance getAuthorizationBalance(Long id, BigDecimal value) {
+    Balance balance = findBalanceById(id);
+    if (balance.getAuthorizedValue().compareTo(value) < 0) {
+      throw new IllegalArgumentException("Not enough money to authorize payment");
+    }
+    balance.authorizePayment(value);
+    return balance;
+  }
+
+  private Balance getClearingBalance(Long id, BigDecimal value) {
+    Balance balance = findBalanceById(id);
+    if (balance.getActualValue().compareTo(value) < 0) {
+      throw new IllegalArgumentException("Not enough money to clear payment");
+    }
+    balance.clearPayment(value);
+    return balance;
   }
 
 }

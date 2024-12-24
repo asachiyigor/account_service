@@ -14,7 +14,7 @@ public record BalanceDto(
     BigDecimal actualValue,
     String createdAt,
     String updatedAt,
-    String version
+    Long version
 ) {
 
 }
