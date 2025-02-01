@@ -30,7 +30,7 @@ public class SavingsAccount {
     @JsonIgnore
     private Account account;
 
-    @OneToMany(mappedBy = "savingsAccount")
+    @OneToMany(mappedBy = "savingsAccount", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TariffHistory> tariffHistory;
 
     @Column(name = "last_date_percent")

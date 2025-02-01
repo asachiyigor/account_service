@@ -7,11 +7,11 @@ import faang.school.accountservice.model.TariffHistory;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.account.SavingsAccount;
 import faang.school.accountservice.model.balance.Balance;
+import faang.school.accountservice.repository.AccountJpaRepository;
+import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
 import faang.school.accountservice.repository.TariffHistoryRepository;
 import faang.school.accountservice.repository.TariffRepository;
-import faang.school.accountservice.repository.BalanceRepository;
-import faang.school.accountservice.repository.AccountJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,13 +24,10 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -123,23 +120,36 @@ class SavingsAccountServiceImplTest {
     @DisplayName("Successfully retrieve all savings accounts for a user")
     public void testGetSavingsAccountByUserId_Success() {
         Long userId = 1L;
-        BigDecimal rate = BigDecimal.valueOf(5.5);
+        LocalDateTime now = LocalDateTime.now();
         List<String> numbers = List.of("429346812734628", "38642897364528736");
-        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        List<Object[]> savingsAccounts = new ArrayList<>();
-        savingsAccounts.add(new Object[]{userId, 1L, rate, timestamp, timestamp, timestamp});
-        savingsAccounts.add(new Object[]{userId, 2L, rate, timestamp, timestamp, timestamp});
+        SavingsAccount savingsAccount1 = new SavingsAccount();
+        savingsAccount1.setId(1L);
+        savingsAccount1.setLastDatePercent(now);
+        savingsAccount1.setCreatedAt(now);
+        savingsAccount1.setUpdatedAt(now);
+        SavingsAccount savingsAccount2 = new SavingsAccount();
+        savingsAccount2.setId(2L);
+        savingsAccount2.setLastDatePercent(now);
+        savingsAccount2.setCreatedAt(now);
+        savingsAccount2.setUpdatedAt(now);
+        List<SavingsAccount> savingsAccounts = List.of(savingsAccount1, savingsAccount2);
         when(accountJpaRepository.findNumbersByUserId(userId)).thenReturn(numbers);
         when(savingsAccountRepository.getSavingsAccountsWithLastTariffRate(numbers)).thenReturn(savingsAccounts);
         List<SavingsAccountDto> results = savingsAccountService.getSavingsAccountByUserId(userId);
         verify(accountJpaRepository, times(1)).findNumbersByUserId(userId);
         verify(savingsAccountRepository, times(1)).getSavingsAccountsWithLastTariffRate(numbers);
-        assertAll(
-                () -> assertNotNull(results),
-                () -> assertEquals(2, results.size()),
-                () -> assertEquals(userId, results.get(0).getId()),
-                () -> assertEquals(userId, results.get(1).getId())
-        );
+        assertNotNull(results);
+        assertEquals(2, results.size());
+        SavingsAccountDto dto1 = results.get(0);
+        assertEquals(savingsAccount1.getId(), dto1.getId());
+        assertEquals(savingsAccount1.getLastDatePercent(), dto1.getLastDatePercent());
+        assertEquals(savingsAccount1.getCreatedAt(), dto1.getCreatedAt());
+        assertEquals(savingsAccount1.getUpdatedAt(), dto1.getUpdatedAt());
+        SavingsAccountDto dto2 = results.get(1);
+        assertEquals(savingsAccount2.getId(), dto2.getId());
+        assertEquals(savingsAccount2.getLastDatePercent(), dto2.getLastDatePercent());
+        assertEquals(savingsAccount2.getCreatedAt(), dto2.getCreatedAt());
+        assertEquals(savingsAccount2.getUpdatedAt(), dto2.getUpdatedAt());
     }
 
     @Test

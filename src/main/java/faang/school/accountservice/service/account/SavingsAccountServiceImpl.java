@@ -6,12 +6,13 @@ import faang.school.accountservice.model.Tariff;
 import faang.school.accountservice.model.TariffHistory;
 import faang.school.accountservice.model.account.Account;
 import faang.school.accountservice.model.account.SavingsAccount;
+import faang.school.accountservice.model.account.SavingsAccountRate;
 import faang.school.accountservice.model.balance.Balance;
+import faang.school.accountservice.repository.AccountJpaRepository;
+import faang.school.accountservice.repository.BalanceRepository;
 import faang.school.accountservice.repository.SavingsAccountRepository;
 import faang.school.accountservice.repository.TariffHistoryRepository;
 import faang.school.accountservice.repository.TariffRepository;
-import faang.school.accountservice.repository.BalanceRepository;
-import faang.school.accountservice.repository.AccountJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Year;
-import java.time.ZoneId;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,8 +74,7 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
         if (numbers.isEmpty()) {
             throw new EntityNotFoundException("Accounts with user id " + userId + " not found");
         }
-
-        List<Object[]> savingsAccounts = savingsAccountRepository.getSavingsAccountsWithLastTariffRate(numbers);
+        List<SavingsAccount> savingsAccounts = savingsAccountRepository.getSavingsAccountsWithLastTariffRate(numbers);
         if (savingsAccounts.isEmpty()) {
             throw new EntityNotFoundException("Accounts with user id " + userId + " not found");
         }
@@ -105,28 +104,24 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
         savingsAccount.setLastDatePercent(currentTime);
     }
 
-    private SavingsAccountDto mapToSavingsAccountDto(Object[] obj) {
-        Long id = ((Number) obj[0]).longValue();
-        Long tariffId = ((Number) obj[1]).longValue();
-        BigDecimal rate = (BigDecimal) obj[2];
-        LocalDateTime lastDatePercent = convertObjectToLocalDateTime(obj[3]);
-        LocalDateTime createdAt = convertObjectToLocalDateTime(obj[4]);
-        LocalDateTime updatedAt = convertObjectToLocalDateTime(obj[5]);
+    private SavingsAccountDto mapToSavingsAccountDto(SavingsAccount savingsAccount) {
+        Optional<TariffHistory> lastTariffHistory = Optional.ofNullable(savingsAccount.getTariffHistory())
+                .orElse(Collections.emptyList())
+                .stream()
+                .max(Comparator.comparing(TariffHistory::getCreatedAt));
+        Long tariffId = lastTariffHistory.map(TariffHistory::getId).orElse(null);
+        BigDecimal rate = lastTariffHistory.flatMap(th ->
+                th.getSavingsAccountRates().stream()
+                        .max(Comparator.comparing(SavingsAccountRate::getCreatedAt))
+                        .map(SavingsAccountRate::getRate)
+        ).orElse(null);
         return SavingsAccountDto.builder()
-                .id(id).tariffId(tariffId).rate(rate).lastDatePercent(lastDatePercent)
-                .createdAt(createdAt).updatedAt(updatedAt).build();
-    }
-
-    private LocalDateTime convertObjectToLocalDateTime(Object obj) {
-        if (obj == null) return null;
-        LocalDateTime createdAt;
-        if (obj instanceof Timestamp) {
-            createdAt = ((Timestamp) obj).toLocalDateTime();
-        } else if (obj instanceof Instant) {
-            createdAt = LocalDateTime.ofInstant((Instant) obj, ZoneId.systemDefault());
-        } else {
-            throw new IllegalArgumentException("Unsupported data type: " + obj.getClass());
-        }
-        return createdAt;
+                .id(savingsAccount.getId())
+                .tariffId(tariffId)
+                .rate(rate)
+                .lastDatePercent(savingsAccount.getLastDatePercent())
+                .createdAt(savingsAccount.getCreatedAt())
+                .updatedAt(savingsAccount.getUpdatedAt())
+                .build();
     }
 }

@@ -1,6 +1,7 @@
 package faang.school.accountservice.model.account;
 
 import faang.school.accountservice.model.Tariff;
+import faang.school.accountservice.model.TariffHistory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,10 @@ public class SavingsAccountRate {
 
     @Column(name = "rate")
     private BigDecimal rate;
+
+    @ManyToOne
+    @JoinColumn(name = "tariff_history_id", nullable = false)
+    private TariffHistory tariffHistory;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
